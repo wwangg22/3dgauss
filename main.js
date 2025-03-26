@@ -921,6 +921,19 @@ async function main() {
     let activeKeys = [];
     let currentCameraIndex = 0;
 
+    function getCameraDistanceFromOrigin(viewMatrix) {
+        // 1. Invert the view matrix to get the camera transform
+        const inv = invert4(viewMatrix);
+      
+        // 2. The camera's world position is (inv[12], inv[13], inv[14]) in column-major order.
+        const x = inv[12];
+        const y = inv[13];
+        const z = inv[14];
+      
+        // 3. Distance from the origin:
+        return Math.sqrt(x*x + y*y + z*z);
+      }
+
     window.addEventListener("keydown", (e) => {
         // if (document.activeElement != document.body) return;
         carousel = false;
@@ -1022,18 +1035,23 @@ async function main() {
     canvas.addEventListener("mousemove", (e) => {
         e.preventDefault();
         if (down == 1) {
+                    // 1. Invert your current view so we can modify it in "camera space"
             let inv = invert4(viewMatrix);
+
+            // 2. Calculate how much the mouse moved in normalized units
             let dx = (5 * (e.clientX - startX)) / innerWidth;
             let dy = (5 * (e.clientY - startY)) / innerHeight;
-            let d = 4;
 
-            inv = translate4(inv, 0, 0, d);
+            // 3. Compute the real camera distance from (0,0,0)
+            let distance = getCameraDistanceFromOrigin(viewMatrix);
+
+            // 4. Translate in by 'distance', apply rotation, then translate back out
+            inv = translate4(inv, 0, 0, distance);
             inv = rotate4(inv, dx, 0, 1, 0);
             inv = rotate4(inv, -dy, 1, 0, 0);
-            inv = translate4(inv, 0, 0, -d);
-            // let postAngle = Math.atan2(inv[0], inv[10])
-            // inv = rotate4(inv, postAngle - preAngle, 0, 0, 1)
-            // console.log(postAngle)
+            inv = translate4(inv, 0, 0, -distance);
+
+            // 5. Re-invert to make this the new viewMatrix
             viewMatrix = invert4(inv);
 
             startX = e.clientX;
@@ -1165,6 +1183,7 @@ async function main() {
         },
         { passive: false },
     );
+    
 
     let jumpDelta = 0;
     let vertexCount = 0;
