@@ -1114,17 +1114,21 @@ async function main() {
             e.preventDefault();
             if (e.touches.length === 1 && down) {
                 let inv = invert4(viewMatrix);
+
+                // How far did the finger move?
                 let dx = (4 * (e.touches[0].clientX - startX)) / innerWidth;
                 let dy = (4 * (e.touches[0].clientY - startY)) / innerHeight;
 
-                let d = 4;
-                inv = translate4(inv, 0, 0, d);
-                // inv = translate4(inv,  -x, -y, -z);
-                // inv = translate4(inv,  x, y, z);
+                // Get real camera distance from origin
+                let distance = getCameraDistanceFromOrigin(viewMatrix);
+
+                // Translate in, rotate, translate out
+                inv = translate4(inv, 0, 0, distance);
                 inv = rotate4(inv, dx, 0, 1, 0);
                 inv = rotate4(inv, -dy, 1, 0, 0);
-                inv = translate4(inv, 0, 0, -d);
+                inv = translate4(inv, 0, 0, -distance);
 
+                // Make it our new view matrix
                 viewMatrix = invert4(inv);
 
                 startX = e.touches[0].clientX;
