@@ -797,9 +797,8 @@ async function main() {
     // let splatData = new Uint8Array(req.headers.get("content-length"));
     let splatData = new Uint8Array(1024 * 1024);   // 1 MiB
 
-    const downsample =
-        splatData.length / rowLength > 500000 ? 1 : 1 / devicePixelRatio;
-    console.log(splatData.length / rowLength, downsample);
+    var downsample =1;
+
 
     const worker = new Worker(
         URL.createObjectURL(
@@ -1266,6 +1265,9 @@ async function main() {
             });
         }
     }
+    downsample =
+        splatData.length / rowLength > 500000 ? 1 : 1 / devicePixelRatio;
+    console.log(splatData.length / rowLength, downsample);
 }
 
 main().catch((err) => {
