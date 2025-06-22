@@ -689,7 +689,7 @@ let defaultViewMatrix = [
 let viewMatrix = defaultViewMatrix;
 
 const START_POS = [0.5828, -0.0901, 1.6495];
-const END_POS   = [1.3242, -0.3213, 3.9102];
+const END_POS   = [1.3242, -0.3213, 4.0102];
 
 
 
@@ -749,15 +749,12 @@ const MAX_PITCH = Math.PI / 4 - 0.01;  //
 const MIN_YAW   =  0.35 - Math.PI/2;          // -180°
 const MAX_YAW   =  0.35  + Math.PI/2;           // 180°
 
-console.log("MIN_PITCH", MIN_PITCH, "MAX_PITCH", MAX_PITCH);
-console.log("MIN_YAW", MIN_YAW, "MAX_YAW", MAX_YAW);
-
 
 const slider = document.getElementById('moveSlider');
 
 function updateTick () {
     const t    = slider.value / 100;               // 0‥1
-    targetT = Math.max(0, Math.min(1, targetT + (t - targetT) * 0.1));
+    targetT = t;
 }
 
 slider.addEventListener('input',  updateTick);
