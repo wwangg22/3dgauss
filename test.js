@@ -794,7 +794,8 @@ async function main() {
    
     const rowLength = 3 * 4 + 3 * 4 + 4 + 4;
     const reader = req.body.getReader();
-    let splatData = new Uint8Array(req.headers.get("content-length"));
+    // let splatData = new Uint8Array(req.headers.get("content-length"));
+    let splatData = new Uint8Array(1024 * 1024);   // 1 MiB
 
     const downsample =
         splatData.length / rowLength > 500000 ? 1 : 1 / devicePixelRatio;
@@ -1230,6 +1231,16 @@ async function main() {
     while (true) {
         const { done, value } = await reader.read();
         if (done || stopLoading) break;
+
+        if (bytesRead + value.length > splatData.length) {
+            const nextSize = Math.max(
+                splatData.length * 2,
+                bytesRead + value.length
+            );
+            const bigger = new Uint8Array(nextSize);
+            bigger.set(splatData);          // copy old data
+            splatData = bigger;
+        }
 
         splatData.set(value, bytesRead);
         bytesRead += value.length;
